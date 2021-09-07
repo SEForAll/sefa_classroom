@@ -1,5 +1,5 @@
 {
-	"organization":"insert org name here",
-	"authName":"insert github username here",
-	"authKey":"insert GPG token here"
+	"organization":"purdueECE264",
+    "authName":"myers395",
+    "authKey":"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"
 }

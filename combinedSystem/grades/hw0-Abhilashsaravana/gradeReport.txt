@@ -1,0 +1,16 @@
+Graded on 09-07 18:35:13
+Grade: N/A%
+Submission was 0 hours late.
+Feedback: An error occured while grading your homework.. Traceback (most recent call last):
+  File "/home/jack/Documents/Clones/sefa_classroom/combinedSystem/functions/gradeProcess.py", line 65, in startGradingProcess
+    obj = interface.grade_submission(clonePath, profPath, int(hoursLate))
+  File "/home/jack/Documents/Clones/sefa_classroom/combinedSystem/functions/GradingInterface/interface.py", line 277, in grade_submission
+    points, user_feedback, testcases_dict = grade(user_submission.submission_folder_path, weights)  # grades submission and gets point values
+  File "/home/jack/Documents/Clones/sefa_classroom/combinedSystem/functions/GradingInterface/gradingsystem.py", line 155, in grade
+    bytesLeaked, blocksLeaked = memcheck(path, valgrindstatements)  # check leaked memory for each testcase
+  File "/home/jack/Documents/Clones/sefa_classroom/combinedSystem/functions/GradingInterface/gradingsystem.py", line 216, in memcheck
+    checkfortimeout(os.system, args=[f'valgrind --tool=memcheck --log-file={tempfile} --leak-check=full --verbose {statement} >/dev/null 2>&1'], timeout=10)
+  File "/home/jack/Documents/Clones/sefa_classroom/combinedSystem/functions/GradingInterface/gradingsystem.py", line 260, in checkfortimeout
+    if process2.is_alive() is False:  # if the function is done running, return the function
+KeyboardInterrupt
+. 

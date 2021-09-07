@@ -1,5 +1,5 @@
 #!!--------Imports-----------!!
-from functions.setup import getConfigInputs, argParse
+from functions.setup import getConfigInputs, argParse, cleanDirs
 from functions.fetch import fetchLists, fetchRepos, fetchHWInfo, fetchLimit
 from functions.dataFrameHelper import updateDF, loadCSV, writeCSV
 from functions.gradeProcess import cloneFromRepos, startGradingProcess, putGradesInRepos, putGradesInCSV, pushChangeToRepos
@@ -32,6 +32,11 @@ parser.add_argument("--config", type = str, nargs = 1, help = "specify the absol
 args = parser.parse_args()
 
 [startIndex, endIndex, homeworkMasterList, configJSON] = argParse(args, profDir + hwsDir, profDir, outputFile)
+
+#!!----------Delete Clones and Grades Folders--------!!
+if args.delete != False: #it defaults to true
+    cleanDirs(clonesDir, gradesDir, outputFile)
+
 
 #!!--------Set Up Variables From JSON File-----------!! 
 #get variables from JSON config file
@@ -72,8 +77,8 @@ for x in range(startIndex, endIndex + 1): #for each homework
             outputFile.write('\n  --Successfully ran startGradingProcess\n')
 
             #!!---------Put Grade Text File Into Cloned Repos--------!!
-            putGradesInRepos(gradesDir, clonesDir, gradeFileName, repo)
-            outputFile.write('  --Successfully ran putGradesInRepos\n')
+            '''putGradesInRepos(gradesDir, clonesDir, gradeFileName, repo)
+            outputFile.write('  --Successfully ran putGradesInRepos\n')'''
 
             #!!---------Add Grades to CSV For Prof Access--------!!
             putGradesInCSV(profDir, gradesDir, gradeFileName, repo)
@@ -82,10 +87,10 @@ for x in range(startIndex, endIndex + 1): #for each homework
             outputFile.write('  --Successfully ran putGradesInCSV\n')
 
             #!!---------Push Grade File to Student Repos--------!!
-            pushChangeToRepos(clonesDir, gradeFileName, repo)
+            '''pushChangeToRepos(clonesDir, gradeFileName, repo)
                 #also adds graded_ver tag
-            outputFile.write('  --Successfully ran pushChangeToRepos\n')
-            outputFile.write('[Finished grading ' + repo + ']\n')            
+            outputFile.write('  --Successfully ran pushChangeToRepos\n')'''
+            outputFile.write('[Finished grading ' + repo + ']\n')          
 
             #!!---------Remove Local Repository--------!!
             if args.delete != False:
@@ -95,14 +100,7 @@ for x in range(startIndex, endIndex + 1): #for each homework
 
 #!!----------Delete Clones and Grades Folders--------!!
 if args.delete != False: #it defaults to true
-    if os.path.exists(os.getcwd() + clonesDir):
-        rmtree('clones') 
-        outputFile.write('\n\nRemoved clones')
-            #removes all cloned folders
-    if os.path.exists(os.getcwd() + gradesDir):
-        rmtree('grades')
-        outputFile.write('\nRemoved grades')
-            #removes folder of grades
+    cleanDirs(clonesDir, gradesDir, outputFile)
 
 outputFile.write('\n***Finished grading process***')
 

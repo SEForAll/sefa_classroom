@@ -1,4 +1,5 @@
 import os, json, re
+from functions.rmtree import rmtree
 
 #THIS FILE CONTAINS
 #getConfigInputs, argParse, getHomeworkList, isAValidHomework
@@ -92,3 +93,13 @@ def isAValidHomework(HWDirectory, inputHW):
 		else:
 			print("One of the homeworks in the directory does not have a number!")
 	return isAHomework, index
+
+def cleanDirs(clonesDir, gradesDir, outputFile):
+    if os.path.exists(os.getcwd() + clonesDir):
+        rmtree('clones') 
+        outputFile.write('\n\nRemoved clones')
+        #removes all cloned folders
+    if os.path.exists(os.getcwd() + gradesDir):
+        rmtree('grades')
+        outputFile.write('\nRemoved grades')
+            #removes folder of grades
