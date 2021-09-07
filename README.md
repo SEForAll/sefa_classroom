@@ -63,6 +63,8 @@ First, install necessary packages on the server or computer you are using. This 
 
 ```bash
 sudo apt-get update
+```
+```bash
 sudo apt-get install valgrind \
   make \
   gcc \
