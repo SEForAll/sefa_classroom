@@ -29,9 +29,10 @@ group.add_argument("--hw_range", type = str, nargs = 2, help = "specify a range 
 group.add_argument("--grade_all", action="store_true", help = "specify this option to grade all homeworks. example: python3 runSystem.py --grade_all")
 parser.add_argument("-d", "--delete", action ="store_false", help="specify this option if you would like to NOT delete clones and grades folders after running. default is true")
 parser.add_argument("--config", type = str, nargs = 1, help = "specify the absolute path of a config.json file")
+parser.add_argument("--git_username", type = str, nargs = 1, help = "grade only a specific student's homework")
 args = parser.parse_args()
 
-[startIndex, endIndex, homeworkMasterList, configJSON] = argParse(args, profDir + hwsDir, profDir, outputFile)
+[startIndex, endIndex, homeworkMasterList, configJSON, gitUser] = argParse(args, profDir + hwsDir, profDir, outputFile)
 
 #!!----------Delete Clones and Grades Folders--------!!
 if args.delete != False: #it defaults to true
@@ -52,7 +53,7 @@ authKey = configInputs["authKey"] #json file
 startTime = datetime.now()
 
 #!!----------Run Actual System--------!!
-[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey))  #fetchRepos returns json file of repos, then fetchLists returns list of students in class and lists of homeworks that exist
+[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey), gitUser)  #fetchRepos returns json file of repos, then fetchLists returns list of students in class and lists of homeworks that exist
 
 for x in range(startIndex, endIndex + 1): #for each homework
     hwName = homeworkMasterList[x]
