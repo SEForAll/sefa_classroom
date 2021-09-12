@@ -73,7 +73,7 @@ def calculate_grade(values, equation="100*(p/t)-m-10*l"):
     :param equation: equation to calculate the grade from using variables t = num testcases,
                                                                           p = num testcases passed,
                                                                           m = bytes of memory leak,
-                                                                          l = hours late
+                                                                          l = days late
     :type equation: str
     :param values: the values of the variables in order: [t, p, m, l]
     :type values: list

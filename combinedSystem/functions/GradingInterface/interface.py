@@ -119,11 +119,23 @@ class TestCase:
         """
         self.test_case_path = test_case_path
         self.files = os.listdir(test_case_path)
+        self.test_inp = 'testcases'   #Name of the testcases folder inside profFiles/hws/hw{i}
 
     def copyfiles(self, submission_dir):
         os.chdir(self.test_case_path)
-        for file in self.files:
-            os.system(f'cp -r {file} {submission_dir}')
+
+        if self.test_inp in self.files:
+            os.system(f'cp -r {self.test_inp} {submission_dir}')
+
+        try:
+            os.system(f'cp weights.json {submission_dir}')
+        except:
+            print("Weight.json not found!")
+
+        try:
+            os.system(f'cp Makefile {submission_dir}')
+        except:
+            print('Makefile not found!')
 
     def removefiles(self, submission_dir):
         os.chdir(submission_dir)
@@ -134,7 +146,7 @@ class TestCase:
         return self.test_case_path
 
 
-def grade_submission(submission: str, test_case: str, hourslate=0, weights=None) -> GradedSubmission:
+def grade_submission(submission: str, test_case: str, dayslate=0, weights=None) -> GradedSubmission:
     """
     grade the submission and return a GradedSubmission object with all info stored inside, grade is calculated using
     the specified equation (default: 100*(p/t)-m-10*l)
@@ -143,8 +155,8 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
     :type submission: str
     :param test_case: path to the test case (unzipped folder)
     :type test_case: str
-    :param hourslate: how many hours late the submission was submitted
-    :type hourslate: float
+    :param dayslate: how many days late the submission was submitted
+    :type dayslate: int
     :param weights: a dictionary that contains the weights of each testcase and the memoryleak (ex: {'test1': 40, 'test2' 60, 'mem_coef': 2})
     :type weights: dict
     :return:
@@ -197,24 +209,27 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
         if 'late_coef' not in weights:  # if late_coef isn't in weights, add it and set it to 5 (defualt value)
             weights['late_coef'] = 5
         if weights[
-            'late_coef'] * hourslate >= 100:  # if the penalty is already greater than 100% (will get a 0 no matter what)
-            return GradedSubmission(0, f'submission submitted {hourslate} hours past the deadline resulting in a 0%')
+            'late_coef'] * dayslate >= 100:  # if the penalty is already greater than 100% (will get a 0 no matter what)
+            return GradedSubmission(0, f'Submission submitted {dayslate} days past the deadline resulting in a 0%')
+        if dayslate > 7:  # if the hw is submitted 7 days past the deadline, it will not be graded.
+            return GradedSubmission(0, f'Not graded: Submission submitted {dayslate} days past the deadline resulting in a 0%')
 
     os.chdir(user_submission.submission_folder_path)  # change the directory to the path of the student files ready to be graded
 
     ## get the number of test cases so that we can check if the weights dict is correct
     numberoftestcases = 0
-    with open("Makefile", 'r') as f:  # open the Makefile
+    with open("weights.json", 'r') as f:  # open the Makefile
         text = f.read()  # read the contents of the Makefile
 
         # get the number of test cases to run
 
-        num = re.compile(r'test(\d+):')  # pattern to find how many testcases there are
+        num = re.compile(r'test(\d+)')  # pattern to find how many testcases there are
         match = num.findall(text)
         if len(match) != 0:  # if there is at least one match
             numberoftestcases = int(len(match))
         else:  # if the number of test cases can not be found from the makefile
             user_feedback = 'error when executing Makefile... contact your professor about this issue (number of test cases could not be found)'
+            print('error when executing Makefile... contact your professor about this issue (number of test cases could not be found)')
             return GradedSubmission(0, user_feedback)
 
         if numberoftestcases == 0:  # if there are no testcases
@@ -282,7 +297,7 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
 
     user_submission.clean_up()  # deletes copied files
 
-    points = round(points - weights['late_coef'] * hourslate, 2)
+    points = round(points - weights['late_coef'] * dayslate, 2)
 
     return GradedSubmission(points if points >= 0 else 0, user_feedback, dictionary=testcases_dict)  # returns a GradedSubmission object. this is also where the late penalty is applied
 

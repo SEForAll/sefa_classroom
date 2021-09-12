@@ -1,6 +1,6 @@
 import os, subprocess, shutil, re, sys, traceback
 from datetime import datetime
-from functions.fetch import fetchHWInfo, fetchTags, fetchHoursLate, fetchDueDate
+from functions.fetch import fetchHWInfo, fetchTags, fetchDaysLate, fetchDueDate
 from functions.GradingInterface import interface
 from functions.dataFrameHelper import loadCSV, writeCSV, editEntry
 
@@ -25,7 +25,7 @@ def cloneFromRepos(org, repo, hwNum, tagName, authName, authKey, profPath, clone
                 outputFile.write(', ' + tagList[x])
             outputFile.write('\n')
 
-        if (tagName in tagList) and ('graded_ver' not in tagList): #If the repo is marked to be graded and hasn't already been graded
+        if (tagName in tagList): #If tagName is in the list
             repoURL = "https://" + authKey + "@github.com/" + org + "/" + repo + ".git"
             
             if os.path.isdir(os.getcwd() + clonePath) == False: #create clones folder if it doesn't exist
@@ -40,15 +40,17 @@ def cloneFromRepos(org, repo, hwNum, tagName, authName, authKey, profPath, clone
             tagStr = 'git log -1 --format=%ai ' + tagName
             info = subprocess.check_output(tagStr.split()).decode()
             subDate = info.split(' ')[0] + ' ' + info.split(' ')[1]
-            hoursLate = fetchHoursLate(subDate, fetchDueDate(newProfPath, hwNum))
+            daysLate = fetchDaysLate(subDate, fetchDueDate(newProfPath, hwNum))
 
+            commitStr = 'git log -1 --format=%H ' + tagName
+            commitHash = subprocess.check_output(commitStr.split()).decode()
             os.chdir(owd)
             
             outputFile.write('  * Cloned ' + repo)
-            return True, hoursLate
-    return False, 0
+            return True, commitHash, daysLate
+    return False, 0, 0
 
-def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir, profDir):
+def startGradingProcess(repo,commitHash, daysLate, hwName, outputFile, gradeDir, cloneDir, profDir):
     owd = os.getcwd()
 
     gradePath = owd + gradeDir + '/' + repo #path to grade directory
@@ -62,7 +64,7 @@ def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir,
     outputFile.write("\n  --Calling grade_submission.py")
     
     try:
-        obj = interface.grade_submission(clonePath, profPath, int(hoursLate))
+        obj = interface.grade_submission(clonePath, profPath, int(daysLate))
         grade = obj.get_grade() #returns a float that is rounded to two decimals
         feedback = obj.get_error_list() #returns a list
     except:
@@ -76,12 +78,13 @@ def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir,
     
     gradefile = open(gradePath, "w") #creates grade report file
     gradefile.write("Graded on " + datetime.now().strftime("%m-%d %H:%M:%S"))
+    gradefile.write("\nGraded on Commit ID: " + str(commitHash))
     gradefile.write("\nGrade: " + str(grade))
-    gradefile.write("%\nSubmission was " + str(hoursLate) + ' hours late.')
-    gradefile.write('\nFeedback: ')
+    gradefile.write("%\nSubmission was " + str(daysLate) + ' Days late.')
+    gradefile.write('\nFeedback:\n')
     for line in feedback:
         gradefile.write(line)
-        gradefile.write(". ")
+        gradefile.write("- ")
     gradefile.close()
     
     outputFile.write('\n    --gradeReport.txt created')
@@ -105,11 +108,12 @@ def putGradesInCSV(profDir, gradesDir, fileName, repo):
         match = re.fullmatch(template, repo) # match template with repository name
         
         if os.path.exists(str(srcPath)):
-            grade = open(srcPath, "r").readlines()[1] # open grade file, get the first line
+            grade = open(srcPath, "r").readlines()[3] # open grade file, get the first line
             grade = grade.split(" ")[1].split("%")[0] #retrives just the number from the text file
             if grade == 'N/A':
                 df = editEntry(0, match[2], match[1], df)
             else:
+                print(grade)
                 df = editEntry(float(grade), match[2], match[1], df) # add grade to respective hw and student
         else:
             print("Grade does not exist: " +  str(srcPath))
@@ -127,9 +131,9 @@ def pushChangeToRepos(clonesDir, fileName, repo):
         subprocess.run(["git", "add", fileName], check=True, stdout=subprocess.PIPE).stdout
         message = "Grades updated for your homework."
         subprocess.run(["git", "commit", "-m", message], stdout=subprocess.PIPE).stdout
-        subprocess.run(["git", "push", "origin", "HEAD:refs/heads/master", "--force"], check=True, stdout=subprocess.PIPE).stdout
-        subprocess.run(["git", "tag", "graded_ver"], check=True, stdout=subprocess.PIPE).stdout #adds graded version tag
-        subprocess.run(["git", "push", "origin", "graded_ver"], check=True, stdout=subprocess.PIPE).stdout #need to push the tag specifically, will not update tag with just a general push command
+        subprocess.run(["git", "push", "origin", "HEAD:refs/heads/main", "--force"], check=True, stdout=subprocess.PIPE).stdout
+        subprocess.run(["git", "tag", "graded_ver","-f"], check=True, stdout=subprocess.PIPE).stdout #adds graded version tag
+        subprocess.run(["git", "push", "origin", "graded_ver","-f"], check=True, stdout=subprocess.PIPE).stdout #need to push the tag specifically, will not update tag with just a general push command
         os.chdir(owd)
     else:
         print("The directory " + srcPath + " does not exist.")

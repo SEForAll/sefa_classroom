@@ -1,5 +1,6 @@
 import os, json, re, requests
 from datetime import datetime, timedelta
+from math import ceil
 
 #THIS FILE CONTAINS:
 #fetchLists, fetchRepos, fetchTags, fetchDueDate, fetchHoursLate, fetchHWInfo
@@ -144,15 +145,15 @@ def fetchDueDate(profDir, hwNum):
         print("HW not present or profFiles doesn't exist: " + str(profDir))
     return None
 
-def fetchHoursLate(subDate, dueDate):
-    """Description: Calculates the number of hours between the submission date and due date
+def fetchDaysLate(subDate, dueDate):
+    """Description: Calculates the number of days between the submission date and due date
     
     Parameters: 
     subDate (str): date associated with the final_ver tag
     dueDate (str): due date of homework from JSON file
 
     Returns:
-    timeDiff: difference in hours between dates
+    timeDiff: difference in days between dates
     """
 
     #date format: year, month, day, hour, minute, second
@@ -161,13 +162,14 @@ def fetchHoursLate(subDate, dueDate):
     timeDiff = datetime.strptime(dueDate, FMT) - datetime.strptime(subDate, FMT) #calculate time difference
     timeDiff = timedelta.total_seconds(timeDiff) #convert difference to seconds
     timeDiff = timeDiff / 3600 #convert difference to hours
+    timeDiff = timeDiff / 24 #convert difference to days
     
     #timeDiff is positive if submitted before deadline and negative if after deadline
     if (timeDiff >= 0):
         #not late
         return 0
     else:
-        return timeDiff * -1
+        return ceil(timeDiff * -1)
 
 def fetchHWInfo(num, hwName):
     """Description: Confirms whether or not the submitted number matches the string provided, and returns number associated with provided string
