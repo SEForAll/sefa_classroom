@@ -1,5 +1,5 @@
 import os, json, re
-from functions.rmtree import rmtree
+from .rmtree import rmtree
 
 #THIS FILE CONTAINS
 #getConfigInputs, argParse, getHomeworkList, isAValidHomework, cleanDirs
