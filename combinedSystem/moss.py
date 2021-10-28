@@ -47,14 +47,35 @@ for student in students:
     cloneCmd = "git clone git@github.com:{}/{}-{}".format(organization, hw_number, student)
     os.system(cloneCmd)
 
+path = os.getcwd()
+temppath = os.getcwd() # to get into the Moss Directory
+#print(path)
+path = path.replace("/TempMossDirectory", "")
+temppath2 = path #the combinedSystem directory
+os.chdir(path)
 
 for root, dir, files in os.walk("TempMossDirectory"):
-    for file in files :
-        if ".c" in file : #change this
+    for file in files:
+        if ".c" in file: # change this
             for student in students:
-                if student in root :
-                    shutil.copy(os.path.join(root, file), os.path.join("MossDirectory", hw_number + "_" + student))
+                if student in root:
+                    shutil.copy(os.path.join(root, file), os.path.join("MossDirectory", hw_number + "_" + student + ".c"))
 
+path = temppath.replace("/TempMossDirectory", "/MossDirectory")
+os.chdir(path)
 
 runMoss = "perl moss.pl -l c *.c"
 subprocess.call(runMoss, shell = True)
+
+path = temppath2
+os.chdir(path)
+
+deleteTempMossDirectory = "rm -rf ./TempMossDirectory"
+os.system(deleteTempMossDirectory)
+
+for root, dir, files in os.walk("MossDirectory"):
+    for file in files: 
+        if ".c" in file: 
+            if os.path.exists(file):
+                print('1')
+                os.remove(file)
