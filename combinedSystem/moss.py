@@ -6,6 +6,8 @@ from functions.fetch import fetchLists, fetchRepos
 #File Structure
 #moss.py                    -> this file
 #
+#config.json                -> in profFiles directory, must change all arguments
+#
 #/MossDirectory             -> a folder in this directory
 #   moss.pl                 -> the moss script, paste directly from email
 #   student_files.c         -> the c files from the students, automatically put into and deleted from the directory
