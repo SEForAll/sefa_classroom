@@ -3,6 +3,9 @@ from datetime import datetime
 from functions.setup import getConfigInputs, argParse
 from functions.fetch import fetchLists, fetchRepos
 
+#How to run: 
+#   $python3 moss.py --grade_all --config [Path to config.json]
+
 #File Structure
 #moss.py                    -> this file
 #
