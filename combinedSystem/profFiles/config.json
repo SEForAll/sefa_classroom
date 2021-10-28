@@ -1,5 +1,6 @@
 {
 	"organization":"insert org name here",
+	"hw_number": "insert the hw number here (only used for moss)", 
 	"authName":"insert github username here",
 	"authKey":"insert personal access token here"
 }

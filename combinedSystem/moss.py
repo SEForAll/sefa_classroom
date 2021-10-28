@@ -4,10 +4,15 @@ from functions.setup import getConfigInputs, argParse
 from functions.fetch import fetchLists, fetchRepos
 
 #File Structure
-#moss.py                -> this file
-#/MossDirectory         -> a folder in this directory
-#   moss.pl             -> the moss script, paste directly from email
-#   student_files.c     -> the c files from the students, automatically put into the directory
+#moss.py                    -> this file
+#
+#/MossDirectory             -> a folder in this directory
+#   moss.pl                 -> the moss script, paste directly from email
+#   student_files.c         -> the c files from the students, automatically put into and deleted from the directory
+#
+#/TempMossDirectory         -> automatically created and deleted 
+#   cloned_student_repos    -> the student repos from GitHub Classrooms
+
 
 #!!----------Static Variables------!!
 profDir = "/profFiles"
@@ -50,9 +55,8 @@ for student in students:
 path = os.getcwd()
 temppath = os.getcwd() # to get into the Moss Directory
 #print(path)
-path = path.replace("/TempMossDirectory", "")
-temppath2 = path #the combinedSystem directory
-os.chdir(path)
+baseDirectory = path.replace("/TempMossDirectory", "")
+os.chdir(baseDirectory)
 
 for root, dir, files in os.walk("TempMossDirectory"):
     for file in files:
@@ -61,21 +65,19 @@ for root, dir, files in os.walk("TempMossDirectory"):
                 if student in root:
                     shutil.copy(os.path.join(root, file), os.path.join("MossDirectory", hw_number + "_" + student + ".c"))
 
-path = temppath.replace("/TempMossDirectory", "/MossDirectory")
-os.chdir(path)
+toMossDirectory = temppath.replace("/TempMossDirectory", "/MossDirectory")
+os.chdir(toMossDirectory)
 
 runMoss = "perl moss.pl -l c *.c"
 subprocess.call(runMoss, shell = True)
 
-path = temppath2
-os.chdir(path)
+os.chdir(baseDirectory)
 
 deleteTempMossDirectory = "rm -rf ./TempMossDirectory"
 os.system(deleteTempMossDirectory)
 
-for root, dir, files in os.walk("MossDirectory"):
-    for file in files: 
-        if ".c" in file: 
-            if os.path.exists(file):
-                print('1')
-                os.remove(file)
+dirs = os.listdir(toMossDirectory)
+os.chdir(toMossDirectory)
+for file in dirs: 
+    if ".c" in file: 
+        os.remove(file)
