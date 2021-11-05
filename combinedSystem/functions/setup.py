@@ -1,7 +1,8 @@
 import os, json, re
+from .rmtree import rmtree
 
 #THIS FILE CONTAINS
-#getConfigInputs, argParse, getHomeworkList, isAValidHomework
+#getConfigInputs, argParse, getHomeworkList, isAValidHomework, cleanDirs
 
 def getConfigInputs(JSONFile):
 	dictJSON = {} 
@@ -11,6 +12,11 @@ def getConfigInputs(JSONFile):
 
 def argParse(args, hwDir, profFiles, outputFile):
     homeworkMasterList = getHomeworkList(os.path.join(os.getcwd() + hwDir)) #list of all homework directories
+
+    if args.git_username is not None: #specific student to be graded
+        gitUser = args.git_username[0]
+    else:
+        gitUser = None
 
     if args.config is not None: #user specified location for config json
         if os.path.exists(args.config[0]) and os.path.isfile(args.config[0]): #is not a directory and exists
@@ -54,7 +60,7 @@ def argParse(args, hwDir, profFiles, outputFile):
         endIndex = startIndex
 
     outputFile.write('\n')
-    return startIndex, endIndex, homeworkMasterList, configJSON
+    return startIndex, endIndex, homeworkMasterList, configJSON, gitUser
 
 def getHomeworkList(HWDirectory):
 	dirNames = []
@@ -92,3 +98,13 @@ def isAValidHomework(HWDirectory, inputHW):
 		else:
 			print("One of the homeworks in the directory does not have a number!")
 	return isAHomework, index
+
+def cleanDirs(clonesDir, gradesDir, outputFile):
+    if os.path.exists(os.getcwd() + clonesDir):
+        rmtree('clones') 
+        outputFile.write('\n\nRemoved clones')
+        #removes all cloned folders
+    if os.path.exists(os.getcwd() + gradesDir):
+        rmtree('grades')
+        outputFile.write('\nRemoved grades')
+            #removes folder of grades

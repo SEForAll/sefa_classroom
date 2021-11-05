@@ -1,23 +1,27 @@
-Ran on 08-08 13:14:59
+Ran on 09-07 21:09:23
 
 Using Custom Config File:
-/home/jack/Documents/Documents/config.json
+/home/jack/Documents/Clones/config.json
 
-Grading HW04File
+Grading hw00
 
---[[Currently grading : HW04File]]--
+--[[Currently grading : hw00]]--
 
-[Evaluating repo: hw04-lvy15]
-  --Tags for this repo: final_ver, graded_ver
+[Evaluating repo: hw0-sahin01]
+  --Tags for this repo: final_ver
+  * Cloned hw0-sahin01
+  --Calling grade_submission.py
+    --Grade is 100.0
+    --gradeReport.txt created
+  --Successfully ran startGradingProcess
+  --Successfully ran putGradesInCSV
+[Finished grading hw0-sahin01]
 
-[Evaluating repo: hw04-saulevans12]
-  --Tags for this repo: final_ver, graded_ver
 
-[Evaluating repo: hw04-johnr124]
-  --Tags for this repo: final_ver, graded_ver
-
+Removed clones
+Removed grades
 ***Finished grading process***
 
-Requests Used this Runtime: 2
-Hourly Requests Left: 4958
-Total Runtime is: 0 Minutes and 2 Seconds
+Requests Used this Runtime: 11
+Hourly Requests Left: 4978
+Total Runtime is: 0 Minutes and 14 Seconds

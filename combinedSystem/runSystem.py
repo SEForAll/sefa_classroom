@@ -1,5 +1,5 @@
 #!!--------Imports-----------!!
-from functions.setup import getConfigInputs, argParse
+from functions.setup import getConfigInputs, argParse, cleanDirs
 from functions.fetch import fetchLists, fetchRepos, fetchHWInfo, fetchLimit
 from functions.dataFrameHelper import updateDF, loadCSV, writeCSV
 from functions.gradeProcess import cloneFromRepos, startGradingProcess, putGradesInRepos, putGradesInCSV, pushChangeToRepos
@@ -29,9 +29,15 @@ group.add_argument("--hw_range", type = str, nargs = 2, help = "specify a range 
 group.add_argument("--grade_all", action="store_true", help = "specify this option to grade all homeworks. example: python3 runSystem.py --grade_all")
 parser.add_argument("-d", "--delete", action ="store_false", help="specify this option if you would like to NOT delete clones and grades folders after running. default is true")
 parser.add_argument("--config", type = str, nargs = 1, help = "specify the absolute path of a config.json file")
+parser.add_argument("--git_username", type = str, nargs = 1, help = "grade only a specific student's homework")
 args = parser.parse_args()
 
-[startIndex, endIndex, homeworkMasterList, configJSON] = argParse(args, profDir + hwsDir, profDir, outputFile)
+[startIndex, endIndex, homeworkMasterList, configJSON, gitUser] = argParse(args, profDir + hwsDir, profDir, outputFile)
+
+#!!----------Delete Clones and Grades Folders--------!!
+if args.delete != False: #it defaults to true
+    cleanDirs(clonesDir, gradesDir, outputFile)
+
 
 #!!--------Set Up Variables From JSON File-----------!! 
 #get variables from JSON config file
@@ -47,7 +53,7 @@ authKey = configInputs["authKey"] #json file
 startTime = datetime.now()
 
 #!!----------Run Actual System--------!!
-[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey))  #fetchRepos returns json file of repos, then fetchLists returns list of students in class and lists of homeworks that exist
+[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey), gitUser)  #fetchRepos returns json file of repos, then fetchLists returns list of students in class and lists of homeworks that exist
 
 for x in range(startIndex, endIndex + 1): #for each homework
     hwName = homeworkMasterList[x]
@@ -72,8 +78,8 @@ for x in range(startIndex, endIndex + 1): #for each homework
             outputFile.write('\n  --Successfully ran startGradingProcess\n')
 
             #!!---------Put Grade Text File Into Cloned Repos--------!!
-            putGradesInRepos(gradesDir, clonesDir, gradeFileName, repo)
-            outputFile.write('  --Successfully ran putGradesInRepos\n')
+            '''putGradesInRepos(gradesDir, clonesDir, gradeFileName, repo)
+            outputFile.write('  --Successfully ran putGradesInRepos\n')'''
 
             #!!---------Add Grades to CSV For Prof Access--------!!
             putGradesInCSV(profDir, gradesDir, gradeFileName, repo)
@@ -82,10 +88,10 @@ for x in range(startIndex, endIndex + 1): #for each homework
             outputFile.write('  --Successfully ran putGradesInCSV\n')
 
             #!!---------Push Grade File to Student Repos--------!!
-            pushChangeToRepos(clonesDir, gradeFileName, repo)
+            '''pushChangeToRepos(clonesDir, gradeFileName, repo)
                 #also adds graded_ver tag
-            outputFile.write('  --Successfully ran pushChangeToRepos\n')
-            outputFile.write('[Finished grading ' + repo + ']\n')            
+            outputFile.write('  --Successfully ran pushChangeToRepos\n')'''
+            outputFile.write('[Finished grading ' + repo + ']\n')          
 
             #!!---------Remove Local Repository--------!!
             if args.delete != False:
@@ -95,14 +101,7 @@ for x in range(startIndex, endIndex + 1): #for each homework
 
 #!!----------Delete Clones and Grades Folders--------!!
 if args.delete != False: #it defaults to true
-    if os.path.exists(os.getcwd() + clonesDir):
-        rmtree('clones') 
-        outputFile.write('\n\nRemoved clones')
-            #removes all cloned folders
-    if os.path.exists(os.getcwd() + gradesDir):
-        rmtree('grades')
-        outputFile.write('\nRemoved grades')
-            #removes folder of grades
+    cleanDirs(clonesDir, gradesDir, outputFile)
 
 outputFile.write('\n***Finished grading process***')
 
