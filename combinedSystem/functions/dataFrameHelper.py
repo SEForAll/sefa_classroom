@@ -84,6 +84,3 @@ def getSurveyDataFrame(surveyPath):
     df = df.drop([timeStampColumn], axis=1)
     df.columns = ['Real Name','GitHub Username']
     return df
-
-
-
