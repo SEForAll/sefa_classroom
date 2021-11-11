@@ -1,55 +1,27 @@
-Ran on 09-07 18:34:52
+Ran on 09-07 21:09:23
 
-Using Default Config File:
-/home/jack/Documents/Clones/sefa_classroom/combinedSystem/profFiles/config.json
+Using Custom Config File:
+/home/jack/Documents/Clones/config.json
 
 Grading hw00
+
+--[[Currently grading : hw00]]--
+
+[Evaluating repo: hw0-sahin01]
+  --Tags for this repo: final_ver
+  * Cloned hw0-sahin01
+  --Calling grade_submission.py
+    --Grade is 100.0
+    --gradeReport.txt created
+  --Successfully ran startGradingProcess
+  --Successfully ran putGradesInCSV
+[Finished grading hw0-sahin01]
 
 
 Removed clones
 Removed grades
---[[Currently grading : hw00]]--
+***Finished grading process***
 
-[Evaluating repo: hw0-PC-192]
-  --Tags for this repo: final_ver
-  * Cloned hw0-PC-192
-  --Calling grade_submission.py
-    --Grade is 100.0
-    --gradeReport.txt created
-  --Successfully ran startGradingProcess
-  --Successfully ran putGradesInCSV
-[Finished grading hw0-PC-192]
-
-[Evaluating repo: hw0-Jones3ones]
-  --Tags for this repo: final_ver
-  * Cloned hw0-Jones3ones
-  --Calling grade_submission.py
-    --Grade is 100.0
-    --gradeReport.txt created
-  --Successfully ran startGradingProcess
-  --Successfully ran putGradesInCSV
-[Finished grading hw0-Jones3ones]
-
-[Evaluating repo: hw0-5han7anu-S]
-  --Tags for this repo: final_ver
-  * Cloned hw0-5han7anu-S
-  --Calling grade_submission.py
-    **An error occured while grading
-    --Grade is N/A
-    --gradeReport.txt created
-  --Successfully ran startGradingProcess
-  --Successfully ran putGradesInCSV
-[Finished grading hw0-5han7anu-S]
-
-[Evaluating repo: hw0-Abhilashsaravana]
-  --Tags for this repo: final_ver
-  * Cloned hw0-Abhilashsaravana
-  --Calling grade_submission.py
-    **An error occured while grading
-    --Grade is N/A
-    --gradeReport.txt created
-  --Successfully ran startGradingProcess
-  --Successfully ran putGradesInCSV
-[Finished grading hw0-Abhilashsaravana]
-
-[Evaluating repo: hw0-zbarker5]
+Requests Used this Runtime: 11
+Hourly Requests Left: 4978
+Total Runtime is: 0 Minutes and 14 Seconds

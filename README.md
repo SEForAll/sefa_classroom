@@ -63,6 +63,8 @@ First, install necessary packages on the server or computer you are using. This 
 
 ```bash
 sudo apt-get update
+```
+```bash
 sudo apt-get install valgrind \
   make \
   gcc \
@@ -111,6 +113,8 @@ This file should be run from a command line in a Linux based system. It will not
 `python3 runSystem.py --grade_all`
 
 - Specify a custom config file with the tag `--config`. The input must be the **absolute** path. If this flag is not included, the default config file location will be used: `combinedSystem/profFiles/config.json`
+
+- Specify a specific Github User with the tag `--git_username`. If the username does not exist in the organization nothing will be graded.
 
 Throughout this process, feedback messages are written to a text file in filteredOutput.txt and grades are added to _profFiles\mastergrades.csv_ for easy reference.
 

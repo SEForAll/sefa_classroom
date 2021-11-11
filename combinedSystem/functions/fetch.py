@@ -5,7 +5,7 @@ from math import ceil
 #THIS FILE CONTAINS:
 #fetchLists, fetchRepos, fetchTags, fetchDueDate, fetchHoursLate, fetchHWInfo
 
-def fetchLists(jsonFile):
+def fetchLists(jsonFile, gitUser):
     """Description: Obtains list of students and homeworks when given a JSON file of repositories
     
     Parameters: 
@@ -29,9 +29,10 @@ def fetchLists(jsonFile):
     for repo in repoList:
         match = re.fullmatch(template, repo)
         if match != None: #does not match any of the valid templates
-            repos.append(match[0]) #full match
-            hwSet.add(match[1]) #hw num
-            studentSet.add(match[2])#student name
+            if(gitUser == None) or (match[2] == gitUser): #match student name if given
+                repos.append(match[0]) #full match
+                hwSet.add(match[1]) #hw num
+                studentSet.add(match[2])#student name
     
     students = list(studentSet)
     hws = list(hwSet)
