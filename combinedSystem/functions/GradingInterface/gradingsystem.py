@@ -254,5 +254,8 @@ def checkfortimeout(func, args=None, timeout=5):
     while process1.is_alive():  # while the timeout process is still running
         if process2.is_alive() is False:  # if the function is done running, return the function
             return
-    process2.terminate()  # if the timeout process is finished and the function is not, raise an error
+    process2.kill()  # if the timeout process is finished and the function is not, raise an error
+
+    #os.system('kill -9')  # if kill doesn't work then we will uncomment this line and see what happens
+
     raise TimeoutError("the program timed out")
