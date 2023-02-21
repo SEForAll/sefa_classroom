@@ -1,3 +1,4 @@
+import json
 import os, subprocess, shutil, re, sys, traceback
 from datetime import datetime
 from functions.fetch import fetchHWInfo, fetchTags, fetchHoursLate, fetchDueDate
@@ -56,7 +57,7 @@ def cloneFromRepos(org, repo, hwNum, tagName, authName, authKey, profPath, clone
             return True, hoursLate
     return False, 0
 
-def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir, profDir, gradeFile, failedTestsDir):
+def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir, profDir, gradeFile, failedTestsDir, weightsDir):
     owd = os.getcwd()
 
     gradePath = owd + gradeDir + '/' + repo #path to grade directory
@@ -70,9 +71,12 @@ def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir,
     gradePath = gradePath + '/' + gradeFile
     
     outputFile.write("\n  --Calling grade_submission.py")
+
+    with open(profPath + '/' + weightsDir) as f:
+        weights = json.load(f)
     
     try:
-        obj = interface.grade_submission(clonePath, profPath, int(hoursLate))
+        obj = interface.grade_submission(clonePath, profPath, int(hoursLate), weights)
         grade = obj.get_grade() #returns a float that is rounded to two decimals
         feedback = obj.get_error_list() #returns a list
     except:

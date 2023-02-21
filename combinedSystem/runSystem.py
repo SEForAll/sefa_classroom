@@ -16,6 +16,7 @@ profDir = "/profFiles"
 gradesDir = "/grades"
 clonesDir = "/clones"
 hwsDir = "/hws"
+weightsDir = "weights.json"
 
 #!!----------Set Up File For Collecting Output------!!
 outputFile = open('filteredOutput.txt', 'w')
@@ -71,7 +72,7 @@ for x in range(startIndex, endIndex + 1): #for each homework
 
         if (needsToBeGraded == True):
             #!!---------Run Grading Script--------!!
-            startGradingProcess(repo, hoursLate, homeworkMasterList[x], outputFile, gradesDir, clonesDir, profDir + hwsDir, gradeFileName, failedTestsDir)
+            startGradingProcess(repo, hoursLate, homeworkMasterList[x], outputFile, gradesDir, clonesDir, profDir + hwsDir, gradeFileName, failedTestsDir, weightsDir)
             outputFile.write('\n  --Successfully ran startGradingProcess\n')
 
             #!!---------Put Grade Text File Into Cloned Repos--------!!
