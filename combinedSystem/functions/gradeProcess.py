@@ -104,10 +104,20 @@ def startGradingProcess(repo, hoursLate, hwName, outputFile, gradeDir, cloneDir,
     os.makedirs(failedPath, exist_ok=True)
     for test_name, test_case in (obj.dict or {}).items():
         if (isinstance(test_case, dict) and test_case.get('passed') == False):
-            files = re.findall(r'\.\/.* (inputs/.*) >', test_case.get('stdout'))
-            for file in files:
-                if os.path.exists(f"{profPath}/{file}"):
-                    shutil.copy(f"{profPath}/{file}", failedPath)
+            if (test_case.get('stdout') == None):
+                file = open("CompileAndRunFailed.txt", "w")
+                # Write some text to the file
+                file.write(str(test_case))
+                file.write("Test Name: " + str(test_name))
+                file.write("Test Case: " + str(test_case))
+                # Close the file
+                file.close()
+                shutil.copy(f"CompileAndRunFailed.txt", failedPath)
+            else:
+                files = re.findall(r'\.\/.* (inputs/.*) >', test_case.get('stdout'))
+                for file in files:
+                    if os.path.exists(f"{profPath}/{file}"):
+                        shutil.copy(f"{profPath}/{file}", failedPath)
     
     outputFile.write(f'\n    --Failed test cases copied to {failedPath}')
             
