@@ -153,8 +153,10 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
     user_submission = Submission(submission)  # this holds the path to the zip file
     submission_testcases = TestCase(test_case)
     user_submission.setup()  # unzips submission into a folder and sets folder path
+    print(os.listdir(submission))
 
     submission_testcases.copyfiles(user_submission.submission_folder_path)  # copies prof files to submission dir
+    print(os.listdir(submission))
 
     if weights is None:  # if no weights given
         for filename in os.listdir(test_case):  # cycle through files in the directory
@@ -192,13 +194,11 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
 
     if 'grade_late_work' not in weights:  # if grade_late_work is not in weights, add it and set it to False
         weights['grade_late_work'] = False
-    if weights[
-        'grade_late_work'] is False:  # if grade_late_work is False then don't grade the work if it's too late to get a non-zero score
+    if weights['grade_late_work'] is False:  # if grade_late_work is False then don't grade the work if it's too late to get a non-zero score
         if 'late_coef' not in weights:  # if late_coef isn't in weights, add it and set it to 5 (defualt value)
             weights['late_coef'] = 5
-        if weights[
-            'late_coef'] * hourslate >= 100:  # if the penalty is already greater than 100% (will get a 0 no matter what)
-            return GradedSubmission(0, f'submission submitted {hourslate} hours past the deadline resulting in a 0%')
+        if weights['late_coef'] * hourslate >= 100:  # if the penalty is already greater than 100% (will get a 0 no matter what)
+            return GradedSubmission(0, f'submission submitted {hourslate} hours past the deadline resulting in a 0%\n')
 
     os.chdir(user_submission.submission_folder_path)  # change the directory to the path of the student files ready to be graded
 
@@ -214,11 +214,11 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
         if len(match) != 0:  # if there is at least one match
             numberoftestcases = int(len(match))
         else:  # if the number of test cases can not be found from the makefile
-            user_feedback = 'error when executing Makefile... contact your professor about this issue (number of test cases could not be found)'
+            user_feedback = 'error when executing Makefile... contact your professor about this issue (number of test cases could not be found)\n'
             return GradedSubmission(0, user_feedback)
 
         if numberoftestcases == 0:  # if there are no testcases
-            user_feedback = 'error when executing Makefile... contact your professor about this issue (number of test cases is not correct)'
+            user_feedback = 'error when executing Makefile... contact your professor about this issue (number of test cases is not correct)\n'
             return GradedSubmission(0, user_feedback)
     
     if weights is None:  # if weights is empty, make it from scratch
@@ -282,7 +282,17 @@ def grade_submission(submission: str, test_case: str, hourslate=0, weights=None)
 
     user_submission.clean_up()  # deletes copied files
 
-    points = round(points - weights['late_coef'] * hourslate, 2)
+    dayslate = 0
+    if int(hourslate) > 0:
+        # round up.
+        dayslate = int((hourslate + 24)/24)
+        user_feedback.append(f'Actual Score:  {points}%\n')
+        user_feedback.append(f'Late Penalty: {dayslate*10}%\n')
+
+    # late co-efficient is for days.
+    points = round(points * (1.0 - ((weights['late_coef'] * dayslate)/100.0)), 2)
+    if dayslate > 0:
+        user_feedback.append(f'After penalty score: {points}%\n')
 
     return GradedSubmission(points if points >= 0 else 0, user_feedback, dictionary=testcases_dict)  # returns a GradedSubmission object. this is also where the late penalty is applied
 

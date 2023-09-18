@@ -1,23 +1,58 @@
-Ran on 08-08 13:14:59
+Ran on 08-31 15:26:27
 
-Using Custom Config File:
-/home/jack/Documents/Documents/config.json
+Using Default Config File:
+/home/min/a/pradhan9/sefa_classroom/combinedSystem/profFiles/config.json
 
-Grading HW04File
+Grading hw1-tools
 
---[[Currently grading : HW04File]]--
+--[[Currently grading : hw1-tools]]--
 
-[Evaluating repo: hw04-lvy15]
-  --Tags for this repo: final_ver, graded_ver
+[Evaluating repo: hw1-tools-Jaken717]
+  --Tags for this repo: graded_ver
+Already Graded this homework. graded_ver tag already present. Skipping
 
-[Evaluating repo: hw04-saulevans12]
-  --Tags for this repo: final_ver, graded_ver
+[Evaluating repo: hw1-tools-joyxqwang]
+  --Tags for this repo: graded_ver
+Already Graded this homework. graded_ver tag already present. Skipping
 
-[Evaluating repo: hw04-johnr124]
-  --Tags for this repo: final_ver, graded_ver
+[Evaluating repo: hw1-tools-NicholasTanz]
+  --Tags for this repo: graded_ver
+Already Graded this homework. graded_ver tag already present. Skipping
+
+[Evaluating repo: hw1-tools-PoulomiPradhan]
+  --Tags for this repo: graded_ver
+Already Graded this homework. graded_ver tag already present. Skipping
+
+[Evaluating repo: hw1-tools-davidasousa]
+  --Tags for this repo: None
+  * Cloned hw1-tools-davidasousa
+  --Calling grade_submission.py
+    --Grade is 0.0
+
+    --gradeReport.txt created
+    --Failed test cases copied to /home/min/a/pradhan9/sefa_classroom/combinedSystem/clones/hw1-tools-davidasousa/failed_testcases
+  --Successfully ran startGradingProcess
+  --Successfully ran putGradesInRepos
+  --Successfully ran putGradesInCSV
+  --Successfully ran pushChangeToRepos
+[Finished grading hw1-tools-davidasousa]
+
+[Evaluating repo: hw1-tools-ysawhney]
+  --Tags for this repo: None
+  * Cloned hw1-tools-ysawhney
+  --Calling grade_submission.py
+    --Grade is 100.0
+
+    --gradeReport.txt created
+    --Failed test cases copied to /home/min/a/pradhan9/sefa_classroom/combinedSystem/clones/hw1-tools-ysawhney/failed_testcases
+  --Successfully ran startGradingProcess
+  --Successfully ran putGradesInRepos
+  --Successfully ran putGradesInCSV
+  --Successfully ran pushChangeToRepos
+[Finished grading hw1-tools-ysawhney]
 
 ***Finished grading process***
 
-Requests Used this Runtime: 2
-Hourly Requests Left: 4958
-Total Runtime is: 0 Minutes and 2 Seconds
+Requests Used this Runtime: 10
+Hourly Requests Left: 4818
+Total Runtime is: 0 Minutes and 18 Seconds

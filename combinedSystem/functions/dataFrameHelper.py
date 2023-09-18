@@ -22,7 +22,7 @@ def updateDF(hws, students, df):
                 newStudent= [{"GitHub Username":student1}] #add student to username col
                 for i in range(1, len(df.columns)): #fill grades with zeros
                     newStudent[0][df.columns[i]]= 0
-                df= df.append(newStudent, ignore_index= True, sort= True)
+                df= df._append(newStudent, ignore_index= True, sort= True)
 
         oldHws = list(df.columns) 
         oldHws.remove("GitHub Username") #clean hw list from dataframe

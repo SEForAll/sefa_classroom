@@ -14,6 +14,7 @@ configInputs = getConfigInputs(configJSON)
 organization =  configInputs["organization"]  #json file
 authName = configInputs["authName"] #json file
 authKey = configInputs["authKey"] #json file
+repoFilter = configInputs.get("repoFilter", None) #json file
 
 tagName = "final_ver"
 gradeFileName = "gradeReport.txt"
@@ -56,7 +57,7 @@ else:
     endIndex = startIndex
 
 #!!----Get lists----!!
-[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey)) 
+[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey), repoFilter)
 
 for x in range(startIndex, endIndex + 1): #for each homework
     hwName = homeworkMasterList[x]
@@ -64,7 +65,7 @@ for x in range(startIndex, endIndex + 1): #for each homework
     print('\nResetting hw ', hwName, '\n')
 
     for repo in repos: #for each repository
-        if fetchHWInfo(hwNum, repo)[0]:
+        if fetchHWInfo(hwNum, repo, True)[0]:
             #!!----Check for local repository and clone if does not exist----!!
             owd = os.getcwd()
 
@@ -80,8 +81,8 @@ for x in range(startIndex, endIndex + 1): #for each homework
 
             tagList = fetchTags(organization, repo, authName, authKey)
 
-            if not os.path.exists(owd + dirPath) and 'final_ver' in tagList and 'graded_ver' in tagList:
-                subprocess.run(["git", "clone", "-b", tagName, str(repoURL)]) #clone repo
+            if not os.path.exists(owd + dirPath) and 'graded_ver' in tagList:
+                subprocess.run(["git", "clone", str(repoURL)]) #clone repo
                 os.chdir(owd + dirPath)
 
             #!!----Delete graded tag-----!!
@@ -93,10 +94,10 @@ for x in range(startIndex, endIndex + 1): #for each homework
                 
             #!!-----Remove grade report----!!
             if os.path.isfile(owd + dirPath + '/' + gradeFileName):
-                os.remove(owd + dirPath + '/' + gradeFileName)
+                os.chdir(owd + dirPath)
                 subprocess.run(["git", "rm", gradeFileName], check=True, stdout=subprocess.PIPE).stdout
                 subprocess.run(["git", "commit", "-m", "deleted gradeReport.txt"], stdout=subprocess.PIPE).stdout
-                subprocess.run(["git", "push", "origin", "HEAD:refs/heads/master", "--force"], check=True, stdout=subprocess.PIPE).stdout
+                subprocess.run(["git", "push", "origin", "HEAD:refs/heads/main", "--force"], check=True, stdout=subprocess.PIPE).stdout
                 print('\nDeleted grade file for', repo, '\n')
             
             os.chdir(owd)
