@@ -3,9 +3,7 @@ from distutils.ccompiler import new_compiler
 import filecmp
 import re
 import multiprocessing
-import subprocess
 import time
-
 
 # Important!!!!!! If you want to use grade function, to go interface.py <-- line 132 of interface.py
 def grade(path, weights):
@@ -46,9 +44,9 @@ def grade(path, weights):
 
     filename = "hw"
     if result == 0:
-        list_final.append(f'{filename} compiled correctly! going to next step...\n')
+        list_final.append(f'{filename} compiled correctly! going to next step...')
     else:
-        list_final.append(f'{filename} did not compile correctly, please check your files\n')
+        list_final.append(f'{filename} did not compile correctly, please check your files')
         return None, list_final, None
         exit
     if debugging:
@@ -75,7 +73,7 @@ def grade(path, weights):
             list_final.append('error when executing Makefile... contact your '
                               'professor about this issue (number of test cases is not correct)')
             return None, list_final, None
-
+        
         testcases_dict = {f'test{i}': dict() for i in range(1, numberoftestcases + 1)}  # initialize dict of dicts
         testcases_dict['num_testcases'] = numberoftestcases  # add the number of test cases to the dict
 
@@ -90,7 +88,7 @@ def grade(path, weights):
             temp = elem.split('>>')[0]
             temp = elem.split('|')[0]
             valgrindstatements.append(temp)
-
+        
         # removes valgrind statement for the 'testall' case in the makefile, assuming it is at the bottom
         while len(valgrindstatements) > numberoftestcases:
             valgrindstatements.pop()  # get rid of extra statements that may have been picked up
@@ -114,34 +112,35 @@ def grade(path, weights):
 
         os.system('make clean >/dev/null 2>&1')  # get rid of unwanted
         os.system('make >/dev/null 2>&1')  # run 'make' in the console
-        # os.system(f'make testcase{i} >/dev/null 2>&1')  # PROF MUST SEND THE OUTPUT OF THE DIFF COMMAND TO grade.txt !!
+        #os.system(f'make testcase{i} >/dev/null 2>&1')  # PROF MUST SEND THE OUTPUT OF THE DIFF COMMAND TO grade.txt !!
         # i can't route the output of the diff command, only the output of the testcase command
         # this must be done by the professor
         # ex) diff output1.txt expected1.txt > grade.txt
         try:
-            # os.system(f'make test{i} >/dev/null 2>&1')
-            cmd = checkfortimeout(f'make test{i}') # try to run a test
-            testcases_dict[f'test{i}']['stdout'] = cmd.stdout
+            checkfortimeout(os.system, args=[f'make test{i} >/dev/null 2>&1'])  # try to run a test
         except TimeoutError:  # if it times out, end the process and go to the next testcase
             list_final.append(f'Test case {i} timed out')
             testcases_dict[f'test{i}']['error_log'] = f'Test case {i} timed out'  # set error_log field for the test[i] dict
             testcases_dict[f'test{i}']['passed'] = False  # set passed field for the test[i] dict
             weights[f'test{i}'] = 0  # change the points earned to 0   
+
             continue
 
         comp = filecmp.cmp('grade.txt', 'empty.txt', shallow=False)  # compare the files
         if comp is True:  # if the files match
-            list_final.append(f"Test case {i} is correct!\n")
+            list_final.append(f"Test case {i} is correct!")
             testcases_dict[f'test{i}']['error_log'] = f"Test case {i} is correct!"
             testcases_dict[f'test{i}']['passed'] = True
+
             passed += 1
         else:  # if the files don't mach
-            list_final.append(f"Test case {i} is wrong...\n")
+            list_final.append(f"Test case {i} is wrong...")
             testcases_dict[f'test{i}']['error_log'] = "Test case {i} is wrong..."
             testcases_dict[f'test{i}']['passed'] = False
+
             weights[f'test{i}'] = 0  # change the points earned to 0
 
-    list_final.append(f'{passed}/{numberoftestcases} test cases passed!\n')
+    list_final.append(f'{passed}/{numberoftestcases} test cases passed!')
 
     for key in weights.keys():  # divide each testcase by the total weight and multiply by 100 to make each testcase worth a percentage
         if key.startswith('test'):
@@ -156,17 +155,17 @@ def grade(path, weights):
     bytesLeaked, blocksLeaked = memcheck(path, valgrindstatements)  # check leaked memory for each testcase
 
     # print(bytesLeaked)
-    if bytesLeaked is None:  # if bytes leaked is none
-        list_final.append('(valgrind not called correctly, make sure it is installed on the server). Ignoring.')
+    if bytesLeaked == -1:  # if bytes leaked is negative that means there was something wrong
+        list_final.append('error when executing Makefile... contact your professor about this issue (valgrind not called correctly, make sure it is installed on the server)')
         return None, list_final, None
     # else:
     #     list_final.append('makefile executed correctly!')
 
     for i in range(len(bytesLeaked)):  # go through each testcase and say how many bytes were leaked
         if bytesLeaked[i] > 0:  # if there was memory leak
-            list_final.append(f'{bytesLeaked[i]} byte(s) of memory leak present in test case {i+1}\n')
+            list_final.append(f'{bytesLeaked[i]} byte(s) of memory leak present in test case {i+1}')
         if bytesLeaked[i] == 0:  # if there was no memory leak
-            list_final.append(f'No memory leak in test case {i+1}\n')
+            list_final.append(f'No memory leak in test case {i+1}')
 
     for i in range(numberoftestcases):  # subtract points for memory leak
         weights[f'test{i + 1}'] -= weights['mem_coef'] * bytesLeaked[i]
@@ -174,7 +173,7 @@ def grade(path, weights):
             weights[f'test{i + 1}'] = 0
 
     if debugging:
-        print('memcheck finished\n')
+        print('memcheck finished')
 
     os.system('make clean >/dev/null 2>&1')  # get rid of unwanted files
     os.remove('grade.txt')  # get rid of file now that grading is complete
@@ -211,52 +210,54 @@ def memcheck(makefile_dir, valgrindstatements):
     bytesInUse = []  # bytes that are in use at the end of the program. each entry is a valgrindstatement
     blocks = []  # how many blocks leak memory. each entry is a valgrindstatement
 
-    valgrindpath = os.popen('which valgrind').read().strip()
-    if not os.path.exists(valgrindpath):
-        print("valgrind not present.\n")
-    else:
-        for statement in valgrindstatements:  # run through the valgrind statements
-            # os.system(f'valgrind {statement} > {tempfile} 2>&1')
-            try:
-                checkfortimeout(f'valgrind --tool=memcheck --log-file={tempfile} --leak-check=full --verbose {statement} >/dev/null 2>&1', timeout=10)
-                # os.system(f'valgrind --tool=memcheck --log-file={tempfile} --leak-check=full --verbose {statement} >/dev/null 2>&1')
-                # previous statement executes valgrind on the executable and writes the output to the tempfile
-                # also gets checked for a timeout obviously lmao
-            except TimeoutError:
-                bytesInUse.append(0)
-                blocks.append(0)
-                continue
+    for statement in valgrindstatements:  # run through the valgrind statements
+        #os.system(f'valgrind {statement} > {tempfile} 2>&1')
+        try:
+            checkfortimeout(os.system, args=[f'valgrind --tool=memcheck --log-file={tempfile} --leak-check=full --verbose {statement} >/dev/null 2>&1'], timeout=10)
+            # previous statement executes valgrind on the executable and writes the output to the tempfile
+            # also gets checked for a timeout obviously lmao
+        except TimeoutError:
+            bytesInUse.append(0)
+            blocks.append(0)
+            continue
+        
+        p = re.compile(r': ((\d*\,)*\d+) bytes in (\d+) blocks')  # regex for getting values from valgrind output
 
-            if not os.path.exists(tempfile):
-                bytesInUse.append(0)
-                blocks.append(0)
-                continue
+        with open(tempfile, 'r') as f:
+            text = f.read()
+            match = p.search(text)  # use regex to get number of bytes leaked and in how many blocks
+            if match is None:
+                return -1, -1  # return this if valgrind is not called properly (might happen bc i wrote this on mac)
+            bytesInUse.append(int(match.group(1).replace(',', '')))  # put regex groups from the match into variables and cast to integers
+            blocks.append(int(match.group(3)))
 
-            p = re.compile(r': ((\d*\,)*\d+) bytes in (\d+) blocks')  # regex for getting values from valgrind output
-
-            with open(tempfile, 'r') as f:
-                text = f.read()
-                match = p.search(text)  # use regex to get number of bytes leaked and in how many blocks
-                if match is None:
-                    return -1, -1  # return this if valgrind is not called properly (might happen bc i wrote this on mac)
-                bytesInUse.append(int(match.group(1).replace(',',
-                                                             '')))  # put regex groups from the match into variables and cast to integers
-                blocks.append(int(match.group(3)))
-
-            os.remove(tempfile)  # remove the files we created as they only pertain to this function
+        os.remove(tempfile)  # remove the files we created as they only pertain to this function
 
     return bytesInUse, blocks
 
-def checkfortimeout(shell_cmd, timeout=5):
+
+def checkfortimeout(func, args=None, timeout=5):
     """
-        Run the provided process and wait for timeout.
-    :param shell_cmd: Shell command to run.
-    :param timeout: timeout in seconds.
-    :return: None
-    :raises: TimeoutError
+    runs a function and raises TimeoutError if the specified time limit is reached
+    :param func: funciton that could timeout
+    :type func: function
+    :param args: arguments to pass to the function (defaults to None)
+    :type args: list
+    :param timeout: number of seconds to trigger a timeout (defaults to 5)
+    :type timeout: int
+    :return:
     """
-    try:
-        res = subprocess.run(shell_cmd, shell=True, timeout=timeout, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')
-    except subprocess.TimeoutExpired:
-        raise TimeoutError("the program timed out")
-    return res
+
+    process1 = multiprocessing.Process(target=time.sleep, args=[timeout])  # sets timeout process
+    if args is None:  # sets process that might timeout
+        process2 = multiprocessing.Process(target=func)
+    else:
+        process2 = multiprocessing.Process(target=func, args=args)
+
+    process1.start()  # start both processes
+    process2.start()
+    while process1.is_alive():  # while the timeout process is still running
+        if process2.is_alive() is False:  # if the function is done running, return the function
+            return
+    process2.terminate()  # if the timeout process is finished and the function is not, raise an error
+    raise TimeoutError("the program timed out")

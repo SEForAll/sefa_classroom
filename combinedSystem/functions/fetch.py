@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 #THIS FILE CONTAINS:
 #fetchLists, fetchRepos, fetchTags, fetchDueDate, fetchHoursLate, fetchHWInfo
 
-def fetchLists(jsonFile, repoFilter=None):
+def fetchLists(jsonFile):
     """Description: Obtains list of students and homeworks when given a JSON file of repositories
     
     Parameters: 
@@ -18,12 +18,9 @@ def fetchLists(jsonFile, repoFilter=None):
 
     repoList = []
     for entry in jsonFile:
-        if "name" not in entry:
-            print("Invalid Repo information from github! Ignoring:" + str(entry))
-        else:
-            repoList.append(entry["name"])
+        repoList.append(entry["name"])
     
-    template = re.compile(repoFilter or '.*(spring2023-hw[a-zA-Z0-9]+)[-]([a-zA-Z0-9-]+)$') #template for student's repo name
+    template = re.compile('^(hw[a-zA-Z0-9]+)[-]([a-zA-Z0-9-]+)$') #template for student's repo name
     studentSet = set()
     hwSet = set()
     repos = []
@@ -121,7 +118,7 @@ def fetchTags(orgName, repoName, authName, authKey):
     tags = tags.split("refs/tags/")
     for x in range(1, len(tags)):
         tagList.append(tags[x].split('\n')[0])
-        
+
     return tagList
 
 def fetchDueDate(profDir, hwNum):
@@ -137,13 +134,11 @@ def fetchDueDate(profDir, hwNum):
 
     if os.path.exists(profDir):
         files = os.listdir(profDir)
-        hws = [file for file in files if (os.path.isdir(profDir + "/" + file) and fetchHWInfo(None, file)[1] == hwNum)] 
-        print(hws)
+        hws = [file for file in files if (os.path.isdir(profDir + "/" + file) and fetchHWInfo(None, file)[1] == hwNum)]
         if (len(hws) == 1):
             jsonFile = json.load(open(profDir + "/" + hws[0] + "/weights.json")) #open Json
             return(jsonFile["due"]) #look for "due" field
         else:
-            print('Multiple homework directories found with the same HW number/name. Check profFiles.')
             return None
     else:
         print("HW not present or profFiles doesn't exist: " + str(profDir))
@@ -163,8 +158,6 @@ def fetchHoursLate(subDate, dueDate):
     #date format: year, month, day, hour, minute, second
     #24 hour clock, must be padded with zeroes. example: "2021-07-02 23:59:59"
     FMT = '%Y-%m-%d %H:%M:%S'
-    print(dueDate)
-    print(subDate)
     timeDiff = datetime.strptime(dueDate, FMT) - datetime.strptime(subDate, FMT) #calculate time difference
     timeDiff = timedelta.total_seconds(timeDiff) #convert difference to seconds
     timeDiff = timeDiff / 3600 #convert difference to hours
@@ -176,24 +169,20 @@ def fetchHoursLate(subDate, dueDate):
     else:
         return timeDiff * -1
 
-def fetchHWInfo(num, hwName, raw_num = True):
+def fetchHWInfo(num, hwName):
     """Description: Confirms whether or not the submitted number matches the string provided, and returns number associated with provided string
     
     Parameters: 
     num (int): number of homework that is being graded
     hwName (str): string to check number against
-    raw_num (bool): Is this a raw number? or repo number?
 
     Returns:
     (boolean): whether or not the number and string provided match numbers
     (int): homework number found in string 
     """
-    if raw_num:
-        template = re.compile('^([a-zA-Z]*)([0-9]+)(.*)') #accepted temlates for hw name
-    else:
-        template = re.compile('.*-([a-zA-Z]*)([0-9]+)(.*)') # this will never step in... why?
-    match = re.fullmatch(template, hwName)
 
+    template = re.compile('^([a-zA-Z]*)([0-9]+)(.*)') #accepted temlates for hw name
+    match = re.fullmatch(template, hwName)
     if match != None: #there was a match
         if (num == None):
             return True, int(match[2]) #return extracted number

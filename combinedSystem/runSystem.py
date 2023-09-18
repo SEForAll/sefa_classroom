@@ -11,7 +11,6 @@ from datetime import datetime
 #!!----------Static Variables------!!
 tagName = "final_ver"
 gradeFileName = "gradeReport.txt"
-failedTestsDir = "/failed_testcases"
 profDir = "/profFiles"
 gradesDir = "/grades"
 clonesDir = "/clones"
@@ -28,10 +27,8 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("--hw_name", type = str, help= "specify the name of the homework to grade. example: python3 runSystem.py --hw_name hw02sort")
 group.add_argument("--hw_range", type = str, nargs = 2, help = "specify a range of homeworks to grade. example: python3 runSystem.py --hw_range hw02sort hw04file")
 group.add_argument("--grade_all", action="store_true", help = "specify this option to grade all homeworks. example: python3 runSystem.py --grade_all")
-parser.add_argument("-d", "--delete", action ="store_true", help="specify this option if you would like to delete clones and grades folders after running. default is false")
-parser.add_argument("-s", "--sanity", action="store_true", help = "specify this option to perform sanity check. example: python3 runSystem.py --hw_name hw02sort --sanity_check")
+parser.add_argument("-d", "--delete", action ="store_false", help="specify this option if you would like to NOT delete clones and grades folders after running. default is true")
 parser.add_argument("--config", type = str, nargs = 1, help = "specify the absolute path of a config.json file")
-parser.add_argument("--dryrun", action="store_true", help="specify this option for a dry run without making any changes. example: python3 runSystem.py --hw_name hw02sort --dryrun")
 args = parser.parse_args()
 
 [startIndex, endIndex, homeworkMasterList, configJSON] = argParse(args, profDir + hwsDir, profDir, outputFile)
@@ -44,15 +41,14 @@ configInputs = getConfigInputs(configJSON)
 organization =  configInputs["organization"]  #json file
 authName = configInputs["authName"] #json file
 authKey = configInputs["authKey"] #json file
-repoFilter = configInputs.get("repoFilter", None) #json file
 
 #!!----------Data Tracking for Development--------!!
 [usedStart, remaining] = fetchLimit(authName, authKey) #Used for tracking requests, can be deleted
 startTime = datetime.now()
 
 #!!----------Run Actual System--------!!
-[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey), repoFilter)  #fetchRepos returns json file of repos, then fetchLists returns list of students in class and lists of homeworks that exist
-num_graded = 0
+[students, hws, repos] = fetchLists(fetchRepos(organization, authName, authKey))  #fetchRepos returns json file of repos, then fetchLists returns list of students in class and lists of homeworks that exist
+
 for x in range(startIndex, endIndex + 1): #for each homework
     hwName = homeworkMasterList[x]
     hwNum = fetchHWInfo(None, hwName)[1]
@@ -65,13 +61,14 @@ for x in range(startIndex, endIndex + 1): #for each homework
 
     #!!----------Clone Appropriate Repositories--------!!
     for repo in repos: #for each repo
+
         [needsToBeGraded, hoursLate] = cloneFromRepos(organization, repo, hwNum, tagName, authName, authKey, profDir + hwsDir, clonesDir, outputFile)
         #[repos cloned to the server at this step, each repo and its hours late]
         #clones all repositories of students with the specified homework name and tag
 
         if (needsToBeGraded == True):
             #!!---------Run Grading Script--------!!
-            startGradingProcess(repo, hoursLate, homeworkMasterList[x], outputFile, gradesDir, clonesDir, profDir + hwsDir, gradeFileName, failedTestsDir, args.dryrun)
+            startGradingProcess(repo, hoursLate, homeworkMasterList[x], outputFile, gradesDir, clonesDir, profDir + hwsDir)
             outputFile.write('\n  --Successfully ran startGradingProcess\n')
 
             #!!---------Put Grade Text File Into Cloned Repos--------!!
@@ -85,7 +82,7 @@ for x in range(startIndex, endIndex + 1): #for each homework
             outputFile.write('  --Successfully ran putGradesInCSV\n')
 
             #!!---------Push Grade File to Student Repos--------!!
-            pushChangeToRepos(clonesDir, gradeFileName, failedTestsDir, repo)
+            pushChangeToRepos(clonesDir, gradeFileName, repo)
                 #also adds graded_ver tag
             outputFile.write('  --Successfully ran pushChangeToRepos\n')
             outputFile.write('[Finished grading ' + repo + ']\n')            
@@ -95,19 +92,6 @@ for x in range(startIndex, endIndex + 1): #for each homework
                 repoPath = os.getcwd() + clonesDir + '/' + repo
                 if os.path.exists(repoPath):
                     rmtree(repoPath)
-
-            num_graded += 1
-
-            if args.sanity:
-                # This is sanity check
-                if num_graded >= 2:
-                    break
-
-    if args.sanity:
-        # This is sanity test and we only grade 2 home works.
-        if num_graded >= 2:
-            print("Graded 2 homeworks. Exiting as this is a sanity check.")
-            break
 
 #!!----------Delete Clones and Grades Folders--------!!
 if args.delete != False: #it defaults to true
